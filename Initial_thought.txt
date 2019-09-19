@@ -1,0 +1,5 @@
+There should be an option to pick whether :
+Here the main need for this utility is Grabbing the related data from multiple log files for a bot in a single file.
+A user wants to do the delay analysis(request and response timing)-[again by grabbing the related data from multiple log files]
+Or he wants to perform the overall errors/criticals analysis for any bot across the multiple files. (includes is blocked set by detect block).-[again by grabbing the related data from multiple log files]
+A user can see the trends of blocking during specific times.
