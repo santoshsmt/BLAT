@@ -89,8 +89,7 @@ namespace LogCreator
                 MessageBox.Show(ex.Message);
             }
         }
-        DataTable dt = null;
-        private void btnSubmit_Click(object sender, EventArgs e)
+        private async void btnSubmit_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtFilePath.Text)
                 || FilePath.Count <= 0)
@@ -108,7 +107,7 @@ namespace LogCreator
                     //FileData = FileManager.ReadFile(path);
                     //dt = FileManager.ConvertToDataTable(path);
                     FileManager.ReadFile(path);
-                    FileManager.ProcessData(Path.GetFileNameWithoutExtension(path));
+                    bool result = await FileManager.ProcessData(Path.GetFileNameWithoutExtension(path));
                     if (FileManager.FileDataBytes != null)
                     {
                         //byte[] data = Encoding.UTF8.GetBytes(text);
@@ -134,7 +133,7 @@ namespace LogCreator
             }
             finally
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
                 FileManager.OutputFileName = string.Empty;
                 txtFilePath.Text = string.Empty;
                 isMultipleFileSelected = false;
