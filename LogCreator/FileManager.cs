@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LogCreator
@@ -38,7 +39,7 @@ namespace LogCreator
                 {
                     Directory.CreateDirectory(path);
                 }
-                byte[] header = Encoding.UTF8.GetBytes("FileName|Time|Number|ProcessID|Message_type|MethodName|RequestID|IsBlock|URL|Message\n");
+                byte[] header = Encoding.UTF8.GetBytes("Source_File_Name|Time|Number|ProcessID|Message_type|MethodName|RequestID|IsBlock|Listings|ContentSize|URL|Message\n");
                 // Check if file already exists. If yes, delete it.     
                 if (File.Exists(OutputFileName))
                 {
@@ -79,7 +80,7 @@ namespace LogCreator
             return Result;
         }
 
-        public static void ProcessData(string FileName)
+        public async static /*void*/ Task<bool> ProcessData(string FileName)
         {
             //string FinalText = string.Empty;
             Source_File_Name = FileName;
@@ -92,23 +93,34 @@ namespace LogCreator
                 //get the list of string from single string
                 //var result = data.Split('\n').ToList();
                 //split the string in different section and modify
-                for (int i = 0; i < FileLines.Count; i++)
+                await Task.Run(() =>
                 {
-                    if (string.IsNullOrEmpty(FileLines[i]))
-                        continue;
+                    try
+                    {
+                        for (int i = 0; i < FileLines.Count; i++)
+                        {
+                            if (string.IsNullOrEmpty(FileLines[i]))
+                                continue;
 
-                    var match = Regex.Match(FileLines[i], @"^([\d]{1,2}:[\d]{1,2}:[\d]{1,2}\s[AaPp][Mm])");
-                    if (match.Success)
-                    {
-                        FileLines[i] = UpdateLog(i);
+                            var match = Regex.Match(FileLines[i], @"^([\d]{1,2}:[\d]{1,2}:[\d]{1,2}\s[AaPp][Mm])");
+                            if (match.Success)
+                            {
+                                FileLines[i] = /*await*/ UpdateLog(i);
+                            }
+                            else
+                            {
+                                FileLines[i - 1] += " " + FileLines[i];
+                                FileLines.RemoveAt(i);
+                                i--;
+                            }
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        FileLines[i - 1] += " " + FileLines[i];
-                        FileLines.RemoveAt(i);
-                        i--;
+                        //
                     }
-                }
+                    
+                });
                 FileDataBytes = Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, FileLines.ToArray()));
                 FileLines = null;
                 // FinalText = string.Join(Environment.NewLine, FileLines.ToArray());
@@ -117,9 +129,9 @@ namespace LogCreator
             {
                 //error
             }
-            //return FinalText;
+            return true;
         }
-        static string UpdateLog(int index)
+        /*async*/ static string /*Task<string>*/ UpdateLog(int index)
         {
             string Result = string.Empty;
             try
@@ -177,18 +189,7 @@ namespace LogCreator
                 }
                 if (string.IsNullOrEmpty(RequestID))
                     RequestID = "NA";
-
-                //get URL
-                match = Regex.Match(Message, @"url[\s]?:");
-                string URL = "NA";
-                if (match.Success)
-                {
-                    URL = Message.Remove(0, match.Index + match.Length);
-                    match = Regex.Match(URL, @"[a-zA-z]");
-                    URL = URL.Remove(0, match.Index);
-                }
-                if (string.IsNullOrEmpty(URL))
-                    URL = "NA";
+                
 
                 //get IsBlock
                 string IsBlock = "NA";
@@ -218,9 +219,81 @@ namespace LogCreator
                 if (string.IsNullOrEmpty(IsBlock))
                     IsBlock = "NA";
 
+                //get Listing
+                string Listing = "NA";
+                match = Regex.Match(Message, @"([\d]+[\s]listings)");
+                if (match.Success)
+                {
+                    Listing = match.Value;
+                    match = Regex.Match(Listing, @"^[\d]+");
+                    Listing = match.Value;
+                }
+                if (string.IsNullOrEmpty(Listing))
+                    Listing = "NA";
+
+                //get ContentSize
+                string ContentSize = "0";
+                if (MethodName.ToLower().Contains("ProcessRequest".ToLower()))
+                {
+                    match = Regex.Match(Message, @"(len [\d]+)");
+                    if (match.Success)
+                    {
+                        ContentSize = match.Value;
+                        match = Regex.Match(ContentSize, @"[\d]+");
+                        ContentSize = match.Value;
+                    }
+                }
+                else if (MethodName.ToLower().Contains("PreProcessContent".ToLower()))
+                {
+                    if (Message.ToLower().Contains("got empty content".ToLower()))
+                    {
+                        ContentSize = "0";
+                    }
+                }
+                if (string.IsNullOrEmpty(ContentSize))
+                    ContentSize = "0";
+
+                //get URL
+                match = Regex.Match(Message, @"url[\s]?:");
+                string URL = "NA";
+                if (match.Success)
+                {
+                    URL = Message.Remove(0, match.Index + match.Length);
+                    match = Regex.Match(URL, @"[a-zA-z]");
+                    URL = URL.Remove(0, match.Index);
+                }
+                else
+                {
+                    match = Regex.Match(Message, @"url[\s]+");
+                    if (match.Success)
+                    {
+                        URL = Message.Remove(0, match.Index + match.Length);
+                        match = Regex.Match(URL, @"[a-zA-z]");
+                        URL = URL.Remove(0, match.Index);
+                        match = Regex.Match(URL, @"[\s]+");
+                        if (match.Success)
+                        {
+                            URL = URL.Substring(0, match.Index).Trim();
+                            if (URL.EndsWith(","))
+                            {
+                                URL = URL.Remove(URL.Length - 1);
+                            }
+                        }
+                        //match = Regex.Match(URL, @"^http(s)?://([\w-]+.)+[\w-]+(/[\w- ./?%&=])?$");
+                        //if (!match.Success)
+                        //{
+                        //    URL = "NA";
+                        //}
+                    }
+                }
+                if (string.IsNullOrEmpty(URL))
+                    URL = "NA";
 
                 //Source_File_Name|Time|Number|ProcessID|Message_type|MethodName|RequestID|IsBlock|URL|Message
-                Result = Source_File_Name + "|" + time + "|" + Number + "|" + ProcessID + "|" + Message_type + "|" + MethodName + "|" + RequestID + "|" + IsBlock + "|" + URL + "|" + Message;
+                Result = Source_File_Name + "|" + time + "|" + Number + "|" + ProcessID + "|" + Message_type + "|" + MethodName + "|" + RequestID + "|" + IsBlock + "|" + Listing + "|" + ContentSize + "|" + URL + "|" + Message;
+                //await Task.Run(() =>
+                //{
+                //});
             }
             catch (Exception e)
             {
@@ -240,6 +313,8 @@ namespace LogCreator
             "MethodName",
             "RequestID",
             "IsBlock",
+            "Listings",
+            "ContentSize",
             "URL",
             "Message"
         };
