@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
 
 namespace LogCreator
@@ -100,7 +101,12 @@ namespace LogCreator
                         for (int i = 0; i < FileLines.Count; i++)
                         {
                             if (string.IsNullOrEmpty(FileLines[i]))
+                            {
+                                FileLines.RemoveAt(i);
+                                i--;
                                 continue;
+                            }
+                                
 
                             var match = Regex.Match(FileLines[i], @"^([\d]{1,2}:[\d]{1,2}:[\d]{1,2}\s[AaPp][Mm])");
                             if (match.Success)
@@ -169,11 +175,12 @@ namespace LogCreator
                 Message = Message.Remove(0, match.Index);
 
                 //get MethodName
-                match = Regex.Match(Message, @"[:]");
                 string MethodName = "NA";
+                //MethodName = Message.Substring(0, Message.IndexOf(" "));
+                match = Regex.Match(Message, @"^[\w]+\(?[\w\d]*\)?:");
                 if (match.Success)
                 {
-                    MethodName = Message.Substring(0, match.Index);
+                    MethodName = Message.Substring(0, match.Length - 1);
                 }
                 if (string.IsNullOrEmpty(MethodName))
                     MethodName = "NA";
@@ -232,7 +239,7 @@ namespace LogCreator
                     Listing = "NA";
 
                 //get ContentSize
-                string ContentSize = "0";
+                string ContentSize = "NA";
                 if (MethodName.ToLower().Contains("ProcessRequest".ToLower()))
                 {
                     match = Regex.Match(Message, @"(len [\d]+)");
@@ -251,7 +258,7 @@ namespace LogCreator
                     }
                 }
                 if (string.IsNullOrEmpty(ContentSize))
-                    ContentSize = "0";
+                    ContentSize = "NA";
 
                 //get URL
                 match = Regex.Match(Message, @"url[\s]?:");
@@ -278,6 +285,8 @@ namespace LogCreator
                             {
                                 URL = URL.Remove(URL.Length - 1);
                             }
+                            URL = GetUrlDecodeString(URL);
+                            URL = GetUrlDecodeString(URL);
                         }
                         //match = Regex.Match(URL, @"^http(s)?://([\w-]+.)+[\w-]+(/[\w- ./?%&=])?$");
                         //if (!match.Success)
@@ -303,6 +312,13 @@ namespace LogCreator
             return Result;
         }
 
+        public static string GetUrlDecodeString(this string url)
+        {
+            if (!string.IsNullOrEmpty(url))
+                return HttpUtility.UrlDecode(url, Encoding.UTF8);
+            return null;
+        }
+
         static List<string> ColumnName = new List<string>
         {
             //"Serial number",
@@ -324,12 +340,21 @@ namespace LogCreator
             DataTable tbl = new DataTable();
             for (int i = 0; i < ColumnName.Count; i++)
             {
-                tbl.Columns.Add(ColumnName[i]);
+                if (ColumnName[i].Equals("Time"))
+                {
+                    tbl.Columns.Add(ColumnName[i], typeof(DateTime));
+                }
+                else
+                    tbl.Columns.Add(ColumnName[i]);
             }
 
             ReadFile(filePath);
             for (int i = 1; i < FileLines.Count; i++)
             {
+                if (string.IsNullOrWhiteSpace(FileLines[i]))
+                {
+                    continue;
+                }
                 var cols = FileLines[i].Split(new[] { '|' } , tbl.Columns.Count);
 
                 DataRow dr = tbl.NewRow();
@@ -344,6 +369,31 @@ namespace LogCreator
             }
 
             return tbl;
+        }
+
+        public static void ConvertDataTableToSortedFile(DataTable dt, string fileName)
+        {
+            try
+            {
+                string filePath = string.Format(@"{0}\LogDataFiles\{1}_{2}.log", Path.GetDirectoryName(Application.ExecutablePath), fileName, DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss_fff"));
+
+                string headerNames = string.Join("|", ColumnName.ToArray());
+
+                StringBuilder sortedFileText = new StringBuilder(headerNames + Environment.NewLine);
+
+                for (int rowIndex = 0; rowIndex < dt.Rows.Count; rowIndex++)
+                {
+                    sortedFileText.AppendLine(string.Join("|", dt.Rows[rowIndex].ItemArray.Cast<string>()));
+                }
+
+                File.WriteAllText(filePath, sortedFileText.ToString());
+
+                MessageBox.Show(null, "Sorted file generated Successsfully!!", "Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(null, "Error occurred while generating Sorted file!!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

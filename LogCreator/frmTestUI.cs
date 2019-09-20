@@ -16,35 +16,25 @@ namespace LogCreator
         public frmTestUI()
         {
             InitializeComponent();
+            this.WindowState = FormWindowState.Maximized;
         }
 
         private void btnShowReport_Click(object sender, EventArgs e)
         {
-            //dateTimePicker1.Value = DateTime.Now;
-            string expression;
-            expression = string.Empty;// string.Format("Time > #{0}# AND Time < #{1}#",
-             //dateTimePicker1.Value.ToString("hh:mm:ss tt"), dateTimePicker2.Value.ToString("hh:mm:ss tt"));
-            string path = Path.GetDirectoryName(Application.ExecutablePath) + @"\LogDataFiles\UpdatedLog_09_19_2019_23_36_41_117.log";
-            DataTable dt = FileManager.ConvertToDataTable(path);
+            advancedDataGridView1.DataSource = null;
             
+            string path = Path.GetDirectoryName(Application.ExecutablePath) + @"\LogDataFiles\UpdatedLog.log";
+            DataTable dt = FileManager.ConvertToDataTable(path);
 
-            DataRow[] foundRows;
+            DataTable dt2 = dt.Select().Where(p => ((Convert.ToDateTime(p["Time"]) >= Convert.ToDateTime(dateTimePicker1.Value.ToString("hh:mm:ss tt"))) 
+            && (Convert.ToDateTime(p["Time"]) <= Convert.ToDateTime(dateTimePicker2.Value.ToString("hh:mm:ss tt"))))
+            ||(p["URL"].ToString().Contains(textBox1.Text.Trim()))).CopyToDataTable();
 
-            // Use the Select method to find all rows matching the filter.  
-            foundRows = dt.Select(expression);
-
-            DataTable dt2 = dt.Clone();
-            //Import the Rows
-            foreach (DataRow d in foundRows)
-            {
-                dt2.ImportRow(d);
-            }
-            //dgvReport.DataSource = FileManager.ConvertToDataTable(path);
-            //BindingSource bs = new BindingSource();
-            //bs.DataSource = dgvReport.DataSource;
-            //bs.Filter = dgvReport.Columns[5].HeaderText.ToString() + " LIKE '%" + txtbxSearch.Text + "%'";
+            IEnumerable<DataRow> orderedRows = dt2.AsEnumerable().OrderBy(r => r.Field<DateTime>("Time"));
+            dt2 = orderedRows.CopyToDataTable();
+            //dt2.DefaultView.Sort = "Time";
             advancedDataGridView1.DataSource = dt2;
-            //dateTimePicker2.Value = DateTime.Now;
+            advancedDataGridView1.Columns["Time"].DefaultCellStyle.Format = "hh:mm:ss tt";
         }
 
         //private void advancedDataGridView1_FilterStringChanged(object sender, EventArgs e)
