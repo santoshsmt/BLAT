@@ -16,7 +16,8 @@ namespace LogCreator
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmTestUI());
+            Application.Run(new frmMain());
+            //Application.Run(new frmTestUI());
         }
     }
 }
