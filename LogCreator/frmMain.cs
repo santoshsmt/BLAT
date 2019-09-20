@@ -18,6 +18,7 @@ namespace LogCreator
         bool isMultipleFileSelected = false;
         public static List<string> result = new List<string>();
         public static string FileData = string.Empty;
+        ToolTip t1 = new ToolTip();
 
         public frmMain()
         {
@@ -25,8 +26,14 @@ namespace LogCreator
             btnMultipleFile.Visible = true;
             btnMultipleFile.Focus();
             buttonAnalyze.Enabled = false;
-            _Height = this.Height;
-            this.Height = txtFilePath.Top + txtFilePath.Height + 50;
+            label3.Visible = txtURL.Visible = false;
+            this.WindowState = FormWindowState.Maximized;
+          //  _Height = this.Height;
+            buttonAnalyze.Left = dtpEnd.Right + 10;
+            dtpStart.Value = DateTime.Now.Date;
+            dtpEnd.Value = DateTime.Now.Date.AddHours(24).AddSeconds(-1);
+          //  this.Height = buttonAnalyze.Top + buttonAnalyze.Height + 50;
+
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
@@ -72,7 +79,7 @@ namespace LogCreator
                 }
 
 
-                this.Height = txtFilePath.Top + txtFilePath.Height + 50;
+               // this.Height = buttonAnalyze.Top + buttonAnalyze.Height + 50;
                 advancedDataGridView1.DataSource = null;
                 FilePath.Clear();
                 txtFilePath.Clear();
@@ -176,7 +183,8 @@ namespace LogCreator
         {
             //Form frm = new frmTestUI();
             //frm.Show();
-            this.Height = _Height;
+            //   this.Height = _Height;
+            this.Cursor = Cursors.WaitCursor;
             string directory_name = Path.GetDirectoryName(Application.ExecutablePath) + @"\LogDataFiles";
             string[] files = Directory.GetFiles(directory_name);
             string path = string.Empty;
@@ -186,7 +194,18 @@ namespace LogCreator
                 break;
             }
 
-            advancedDataGridView1.DataSource = FileManager.ConvertToDataTable(path);
+            DataTable dt = FileManager.ConvertToDataTable(path);
+            DataTable dt2 = dt.Select().Where(p => ((Convert.ToDateTime(p["Time"]) >= Convert.ToDateTime(dtpStart.Value.ToString("hh:mm:ss tt")))
+            && (Convert.ToDateTime(p["Time"]) <= Convert.ToDateTime(dtpEnd.Value.ToString("hh:mm:ss tt"))))).CopyToDataTable();
+
+            IEnumerable<DataRow> orderedRows = dt2.AsEnumerable().OrderBy(r => r.Field<DateTime>("Time"));
+            dt2 = orderedRows.CopyToDataTable();
+            //dt2.DefaultView.Sort = "Time";
+            advancedDataGridView1.DataSource = dt2;
+            advancedDataGridView1.Columns["Time"].DefaultCellStyle.Format = "hh:mm:ss tt";
+            advancedDataGridView1.Columns["Message"].AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            advancedDataGridView1.Columns["Number"].Visible = false;
+            this.Cursor = Cursors.Default;
             //dateTimePicker2.Value = DateTime.Now;
         }
 
@@ -198,6 +217,49 @@ namespace LogCreator
         private void advancedDataGridView1_SortStringChanged(object sender, EventArgs e)
         {
             (advancedDataGridView1.DataSource as DataTable).DefaultView.Sort = advancedDataGridView1.SortString;
+        }
+
+        private void advancedDataGridView1_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            
+            if (e.RowIndex > -1 && e.ColumnIndex > -1)
+            {
+                string value = Convert.ToString(advancedDataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value);
+                if(!string.IsNullOrEmpty(value))
+                    t1.Tag = value;
+            }
+            
+        }
+
+        private void advancedDataGridView1_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            string value = advancedDataGridView1.Rows[e.RowIndex].Cells["Message_type"].Value.ToString();
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                value = value.ToLower();
+                if (value.Contains("critical"))
+                {
+                    advancedDataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Red;
+                    return;
+                }
+                else if (value.Contains("warning"))
+                {
+                    advancedDataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Yellow;
+                    return;
+                }
+                else if (value.Contains("error"))
+                {
+                    advancedDataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Orange;
+                    return;
+                }
+            }
+
+            value = advancedDataGridView1.Rows[e.RowIndex].Cells["IsBlock"].Value.ToString();
+            if (!string.IsNullOrWhiteSpace(value) && value.ToLower().Contains("true"))
+            {
+                advancedDataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Red;
+                return;
+            }
         }
     }
 }

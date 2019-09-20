@@ -186,7 +186,9 @@ namespace LogCreator
                     MethodName = "NA";
 
                 //get RequestID
-                match = Regex.Match(Message, @"ID[\s]?:");
+                match = Regex.Match(Message, @"ProcessRequest:[\s]+ID:");
+                if (!match.Success)
+                    match = Regex.Match(Message, @"ProcessRequest:[\s]+");
                 string RequestID = "NA";
                 if (match.Success)
                 {
@@ -277,17 +279,17 @@ namespace LogCreator
                         URL = Message.Remove(0, match.Index + match.Length);
                         match = Regex.Match(URL, @"[a-zA-z]");
                         URL = URL.Remove(0, match.Index);
-                        match = Regex.Match(URL, @"[\s]+");
-                        if (match.Success)
-                        {
-                            URL = URL.Substring(0, match.Index).Trim();
+                        //match = Regex.Match(URL, @"[\s]+");
+                        //if (match.Success)
+                        //{
+                           // URL = URL.Substring(0, match.Index).Trim();
                             if (URL.EndsWith(","))
                             {
                                 URL = URL.Remove(URL.Length - 1);
                             }
-                            URL = GetUrlDecodeString(URL);
-                            URL = GetUrlDecodeString(URL);
-                        }
+                            //URL = GetUrlDecodeString(URL);
+                            //URL = GetUrlDecodeString(URL);
+                       // }
                         //match = Regex.Match(URL, @"^http(s)?://([\w-]+.)+[\w-]+(/[\w- ./?%&=])?$");
                         //if (!match.Success)
                         //{
@@ -361,6 +363,11 @@ namespace LogCreator
                // dr[0] = i;
                 for (int cIndex = 0; cIndex < cols.Length; cIndex++)
                 {
+                    if (cIndex == 10)
+                    {
+                        cols[cIndex] = GetUrlDecodeString(cols[cIndex]);
+                        cols[cIndex] = GetUrlDecodeString(cols[cIndex]);
+                    }
                     //dr[cIndex+1] = cols[cIndex];
                     dr[cIndex] = cols[cIndex];
                 }
