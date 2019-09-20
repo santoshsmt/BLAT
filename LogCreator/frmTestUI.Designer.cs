@@ -33,8 +33,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
             this.btnShowReport = new System.Windows.Forms.Button();
-            this.dgvReport = new System.Windows.Forms.DataGridView();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvReport)).BeginInit();
+            this.advancedDataGridView1 = new ADGV.AdvancedDataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.advancedDataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // dateTimePicker1
@@ -87,23 +87,24 @@
             this.btnShowReport.UseVisualStyleBackColor = true;
             this.btnShowReport.Click += new System.EventHandler(this.btnShowReport_Click);
             // 
-            // dgvReport
+            // advancedDataGridView1
             // 
-            this.dgvReport.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvReport.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvReport.Location = new System.Drawing.Point(13, 48);
-            this.dgvReport.Name = "dgvReport";
-            this.dgvReport.Size = new System.Drawing.Size(826, 486);
-            this.dgvReport.TabIndex = 5;
+            this.advancedDataGridView1.AutoGenerateContextFilters = true;
+            this.advancedDataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.advancedDataGridView1.DateWithTime = false;
+            this.advancedDataGridView1.Location = new System.Drawing.Point(12, 35);
+            this.advancedDataGridView1.Name = "advancedDataGridView1";
+            this.advancedDataGridView1.Size = new System.Drawing.Size(827, 473);
+            this.advancedDataGridView1.TabIndex = 5;
+            this.advancedDataGridView1.TimeFilter = false;
+            //this.advancedDataGridView1.FilterStringChanged += new System.EventHandler(this.advancedDataGridView1_FilterStringChanged);
             // 
             // frmTestUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(851, 546);
-            this.Controls.Add(this.dgvReport);
+            this.Controls.Add(this.advancedDataGridView1);
             this.Controls.Add(this.btnShowReport);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.dateTimePicker2);
@@ -111,7 +112,7 @@
             this.Controls.Add(this.dateTimePicker1);
             this.Name = "frmTestUI";
             this.Text = "frmTestUI";
-            ((System.ComponentModel.ISupportInitialize)(this.dgvReport)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.advancedDataGridView1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -124,6 +125,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DateTimePicker dateTimePicker2;
         private System.Windows.Forms.Button btnShowReport;
-        private System.Windows.Forms.DataGridView dgvReport;
+        private ADGV.AdvancedDataGridView advancedDataGridView1;
     }
 }

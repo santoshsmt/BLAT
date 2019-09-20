@@ -22,8 +22,8 @@ namespace LogCreator
         {
             //dateTimePicker1.Value = DateTime.Now;
             string expression;
-            expression = string.Format("Time > #{0}# AND Time < #{1}#",
-             dateTimePicker1.Value.ToString("hh:mm:ss tt"), dateTimePicker2.Value.ToString("hh:mm:ss tt"));
+            expression = string.Empty;// string.Format("Time > #{0}# AND Time < #{1}#",
+             //dateTimePicker1.Value.ToString("hh:mm:ss tt"), dateTimePicker2.Value.ToString("hh:mm:ss tt"));
             string path = Path.GetDirectoryName(Application.ExecutablePath) + @"\LogDataFiles\UpdatedLog.log";
             DataTable dt = FileManager.ConvertToDataTable(path);
             
@@ -43,8 +43,13 @@ namespace LogCreator
             //BindingSource bs = new BindingSource();
             //bs.DataSource = dgvReport.DataSource;
             //bs.Filter = dgvReport.Columns[5].HeaderText.ToString() + " LIKE '%" + txtbxSearch.Text + "%'";
-            dgvReport.DataSource = dt2;
+            advancedDataGridView1.DataSource = dt2;
             //dateTimePicker2.Value = DateTime.Now;
         }
+
+        //private void advancedDataGridView1_FilterStringChanged(object sender, EventArgs e)
+        //{
+        //    this.BindingContext = this.advancedDataGridView1.FilterString.bin;
+        //}
     }
 }
