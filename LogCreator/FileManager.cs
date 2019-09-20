@@ -305,6 +305,7 @@ namespace LogCreator
 
         static List<string> ColumnName = new List<string>
         {
+            //"Serial number",
             "Source_File_Name",
             "Time",
             "Number",
@@ -332,8 +333,10 @@ namespace LogCreator
                 var cols = FileLines[i].Split(new[] { '|' } , tbl.Columns.Count);
 
                 DataRow dr = tbl.NewRow();
+               // dr[0] = i;
                 for (int cIndex = 0; cIndex < cols.Length; cIndex++)
                 {
+                    //dr[cIndex+1] = cols[cIndex];
                     dr[cIndex] = cols[cIndex];
                 }
 

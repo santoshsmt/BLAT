@@ -97,7 +97,7 @@
             this.advancedDataGridView1.Size = new System.Drawing.Size(827, 473);
             this.advancedDataGridView1.TabIndex = 5;
             this.advancedDataGridView1.TimeFilter = false;
-            //this.advancedDataGridView1.FilterStringChanged += new System.EventHandler(this.advancedDataGridView1_FilterStringChanged);
+            this.advancedDataGridView1.FilterStringChanged += new System.EventHandler(this.advancedDataGridView1_FilterStringChanged);
             // 
             // frmTestUI
             // 
