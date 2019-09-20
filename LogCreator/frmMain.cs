@@ -13,6 +13,7 @@ namespace LogCreator
 {
     public partial class frmMain : Form
     {
+        int _Height = 0;
         List<string> FilePath = new List<string>();
         bool isMultipleFileSelected = false;
         public static List<string> result = new List<string>();
@@ -22,12 +23,17 @@ namespace LogCreator
         {
             InitializeComponent();
             btnMultipleFile.Visible = true;
+            btnMultipleFile.Focus();
+            buttonAnalyze.Enabled = false;
+            _Height = this.Height;
+            this.Height = txtFilePath.Top + txtFilePath.Height + 50;
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
         {
             try
             {
+
                 FilePath.Clear();
                 isMultipleFileSelected = false;
                 OpenFileDialog openFileDialog = new OpenFileDialog
@@ -59,8 +65,20 @@ namespace LogCreator
         {
             try
             {
+                var files = Directory.GetFiles(Application.StartupPath + @"\\LogDataFiles").FirstOrDefault();
+                if (files != null)
+                {
+                    File.Delete(files);
+                }
+
+
+                this.Height = txtFilePath.Top + txtFilePath.Height + 50;
+                advancedDataGridView1.DataSource = null;
                 FilePath.Clear();
+                txtFilePath.Clear();
                 isMultipleFileSelected = true;
+                btnSubmit.Enabled = true;
+                buttonAnalyze.Enabled = false;
                 OpenFileDialog openFileDialog = new OpenFileDialog
                 {
                     Title = "Browse a Log File",
@@ -80,8 +98,10 @@ namespace LogCreator
                     foreach (string file in openFileDialog.FileNames)
                     {
                         FilePath.Add(file);
+                        txtFilePath.Text += Path.GetFileName(file) + Environment.NewLine;
                     }
-                    txtFilePath.Text = openFileDialog.FileName;
+                    Size size = TextRenderer.MeasureText(txtFilePath.Text, txtFilePath.Font);
+                    txtFilePath.Height = size.Height + 20;
                 }
             }
             catch (Exception ex)
@@ -95,11 +115,18 @@ namespace LogCreator
                 || FilePath.Count <= 0)
             {
                 MessageBox.Show("Please browse a file.");
-                btnBrowse.Focus();
+                btnMultipleFile.Focus();
                 return;
             }
             try
             {
+                string directory_name = Path.GetDirectoryName(Application.ExecutablePath) + @"\LogDataFiles";
+                string[] files = Directory.GetFiles(directory_name);
+                foreach (string file in files)
+                {
+                    File.Delete(file);
+                }
+
                 this.Cursor = Cursors.WaitCursor;
                 string msg = string.Empty;
                 foreach (string path in FilePath)
@@ -125,20 +152,52 @@ namespace LogCreator
                         msg = "Unable to read data from file.";
                     }
                 }
-                MessageBox.Show(msg);
+                MessageBox.Show(msg, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                buttonAnalyze.Enabled = true;
+                btnSubmit.Enabled = false;
+                txtFilePath.ReadOnly = true;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+                InitializeComponent();
             }
             finally
             {
                 Cursor = Cursors.Default;
                 FileManager.OutputFileName = string.Empty;
-                txtFilePath.Text = string.Empty;
+                // txtFilePath.Text = string.Empty;
                 isMultipleFileSelected = false;
                 FilePath.Clear();
             }
+        }
+
+        private void buttonAnalyze_Click(object sender, EventArgs e)
+        {
+            //Form frm = new frmTestUI();
+            //frm.Show();
+            this.Height = _Height;
+            string directory_name = Path.GetDirectoryName(Application.ExecutablePath) + @"\LogDataFiles";
+            string[] files = Directory.GetFiles(directory_name);
+            string path = string.Empty;
+            foreach (string file in files)
+            {
+                path = file;
+                break;
+            }
+
+            advancedDataGridView1.DataSource = FileManager.ConvertToDataTable(path);
+            //dateTimePicker2.Value = DateTime.Now;
+        }
+
+        private void advancedDataGridView1_FilterStringChanged(object sender, EventArgs e)
+        {
+            (advancedDataGridView1.DataSource as DataTable).DefaultView.RowFilter = advancedDataGridView1.FilterString;
+        }
+
+        private void advancedDataGridView1_SortStringChanged(object sender, EventArgs e)
+        {
+            (advancedDataGridView1.DataSource as DataTable).DefaultView.Sort = advancedDataGridView1.SortString;
         }
     }
 }
