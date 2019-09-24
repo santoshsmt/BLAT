@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -28,20 +29,24 @@ namespace LogCreator
         {
             InitializeComponent();
             backgroundWorker1.WorkerReportsProgress = true;
-            // backgroundWorker1.WorkerSupportsCancellation = true;
             InitializeBackgroundWorker();
             btnMultipleFile.Visible = true;
             btnMultipleFile.Focus();
             buttonAnalyze.Enabled = false;
             label3.Visible = txtURL.Visible = false;
-            progressBar1.Visible = false;
-            this.WindowState = FormWindowState.Maximized;
-            //  _Height = this.Height;
             buttonAnalyze.Left = dtpEnd.Right + 10;
             dtpStart.Value = DateTime.Now.Date;
             dtpEnd.Value = DateTime.Now.Date.AddHours(24).AddSeconds(-1);
-            //  this.Height = buttonAnalyze.Top + buttonAnalyze.Height + 50;
+            
+            ThreadSafe(() => lblPer.Text = "0 %");
+            ThreadSafe(() => toolStripProgressBar1.Value = 0);
 
+            Rectangle screen = Screen.PrimaryScreen.WorkingArea;
+            int w = screen.Width;
+            int h = screen.Height;
+            this.Location = new Point((screen.Width - w) / 2, (screen.Height - h) / 2);
+            this.Size = new Size(w, h);
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
         }
 
 
@@ -120,6 +125,7 @@ namespace LogCreator
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
+                    FileManager.TotalNoofFiles = openFileDialog.FileNames.Count();
                     foreach (string file in openFileDialog.FileNames)
                     {
                         FilePath.Add(file);
@@ -137,8 +143,7 @@ namespace LogCreator
 
         private async void btnSubmit_Click(object sender, EventArgs e)
         {
-            progressBar1.Style = ProgressBarStyle.Marquee;
-            progressBar1.Visible = true;//Show progress bar
+            
             if (string.IsNullOrEmpty(txtFilePath.Text)
                 || FilePath.Count <= 0)
             {
@@ -148,17 +153,21 @@ namespace LogCreator
             }
             try
             {
+                toolStripProgressBar1.Value = 0;
+                //progressBar1.Visible = true;//Show progress bar
                 string directory_name = Path.GetDirectoryName(Application.ExecutablePath) + @"\LogDataFiles";
                 string[] files = Directory.GetFiles(directory_name);
                 foreach (string file in files)
                 {
                     File.Delete(file);
                 }
-
+                Thread thr = new Thread(UpdatePrograssbar);
+                thr.Start();
                 this.Cursor = Cursors.WaitCursor;
                 string msg = string.Empty;
                 foreach (string path in FilePath)
                 {
+                    FileManager.NoofFilesCounter++;
                     //FileData = FileManager.ReadFile(path);
                     //dt = FileManager.ConvertToDataTable(path);
                     FileManager.ReadFile(path);
@@ -181,10 +190,7 @@ namespace LogCreator
                     }
                 }
                 MessageBox.Show(msg, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                progressBar1.Visible = false;
-                buttonAnalyze.Enabled = true;
-                btnSubmit.Enabled = false;
-                txtFilePath.ReadOnly = true;
+                
             }
             catch (Exception ex)
             {
@@ -198,6 +204,15 @@ namespace LogCreator
                 // txtFilePath.Text = string.Empty;
                 isMultipleFileSelected = false;
                 FilePath.Clear();
+                ThreadSafe(() => lblPer.Text = "0 %");
+                ThreadSafe(() => toolStripProgressBar1.Value = 0);
+                toolStripProgressBar1.Value = 0;
+                buttonAnalyze.Enabled = true;
+                btnSubmit.Enabled = false;
+                txtFilePath.ReadOnly = true;
+                FileManager.NoofFilesCounter = 0;
+                FileManager.TotalNoofFiles = 0;
+                FileManager.FileLineCounter = 0;
                 FileManager.FileLines = null;
                 FileManager.FileDataBytes = null;
                 GC.Collect(0);
@@ -209,30 +224,17 @@ namespace LogCreator
 
         private void buttonAnalyze_Click(object sender, EventArgs e)
         {
-
-            progressBar1.Style = ProgressBarStyle.Marquee;
-            progressBar1.Visible = true;//Show progress bar
-
             if (backgroundWorker1.IsBusy != true)
             {
                 // Start the asynchronous operation.
                 backgroundWorker1.RunWorkerAsync();
             }
-
-
-           
-
-            //dateTimePicker2.Value = DateTime.Now;
         }
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
             try
             {
-                //Application.DoEvents();
-                //Form frm = new frmTestUI();
-                //frm.Show();
-                //   this.Height = _Height;
-                //this.Cursor = Cursors.WaitCursor;
+                ThreadSafe(() => this.Cursor = Cursors.WaitCursor);
                 string directory_name = Path.GetDirectoryName(Application.ExecutablePath) + @"\LogDataFiles";
                 string[] files = Directory.GetFiles(directory_name);
                 string path = string.Empty;
@@ -242,15 +244,14 @@ namespace LogCreator
                     break;
                 }
                 files = null;
-
+                Thread thr = new Thread(UpdatePrograssbar);
+                thr.Start();
                 dt = FileManager.ConvertToDataTable(path);
                 dt2 = dt.Select().Where(p => ((Convert.ToDateTime(p["Time"]) >= Convert.ToDateTime(dtpStart.Value.ToString("hh:mm:ss tt")))
                 && (Convert.ToDateTime(p["Time"]) <= Convert.ToDateTime(dtpEnd.Value.ToString("hh:mm:ss tt"))))).CopyToDataTable();
 
                 orderedRows = dt2.AsEnumerable().OrderBy(r => r.Field<DateTime>("Time"));
                 dt2 = orderedRows.CopyToDataTable();
-                //dt2.DefaultView.Sort = "Time";
-
             }
             catch (Exception ex) { MessageBox.Show("Error occured during operation: ", ex.Message); }
             //finally
@@ -286,11 +287,78 @@ namespace LogCreator
                 advancedDataGridView1.Columns["Time"].DefaultCellStyle.Format = "hh:mm:ss tt";
                 advancedDataGridView1.Columns["Message"].AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
                 advancedDataGridView1.Columns["Number"].Visible = false;
-                //this.Cursor = Cursors.Default;
-                progressBar1.Visible = false;//Show progress bar
+                ThreadSafe(() => this.Cursor = Cursors.Default);
+                ThreadSafe(() => lblPer.Text = "0 %");
+                ThreadSafe(() => toolStripProgressBar1.Value = 0);
                 dt2 = null;
             }
         }
+
+        private void ThreadSafe(Action action)
+        {
+            try
+            {
+                if (this.InvokeRequired)
+                {
+                    Invoke(action);
+                }
+                else
+                {
+                    action();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.Message);
+            }
+        }
+
+        private void UpdatePrograssbar()
+        {
+            try
+            {
+                int per = 0;
+                int lastper = 0;
+                int NumofChunk = 1;
+                double delta = 0;
+                if (FileManager.TotalNoofFiles > 1)
+                {
+                    NumofChunk = (int)Math.Ceiling(100.0 / FileManager.TotalNoofFiles);
+                    delta = NumofChunk / 100.0;
+                }
+                else
+                {
+                    delta = NumofChunk;
+                }
+                while (per >= 0 && per < 100)
+                {
+                    double tmp_per = FileManager.FileLines != null && FileManager.FileLineCounter > 0
+                        ? Math.Round(((double)FileManager.FileLineCounter / (double)FileManager.FileLines.Count), 4) * 100.0 : 0;
+                    per = (int)(NumofChunk * (FileManager.NoofFilesCounter - 1)) + (int)(tmp_per * delta);
+                    if (per > 100)
+                    {
+                        per = 100;
+                    }
+                    else if (per < 0)
+                    {
+                        per = 0;
+                    }
+                    if (lastper <= per)
+                    {
+                        ThreadSafe(() => lblPer.Text = per + " %");
+                        ThreadSafe(() => toolStripProgressBar1.Value = per);
+                        lastper = per;
+                    }
+                    Thread.Sleep(25);
+                }
+            }
+            catch (Exception ex)
+            {
+                //
+            }
+            
+        }
+
 
         private void advancedDataGridView1_FilterStringChanged(object sender, EventArgs e)
         {

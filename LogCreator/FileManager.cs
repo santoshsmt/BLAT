@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
@@ -90,6 +91,7 @@ namespace LogCreator
         {
             //string FinalText = string.Empty;
             Source_File_Name = FileName;
+            FileManager.FileLineCounter = 0;
             try
             {
                 //string[] columns = Regex.Split(data, @"\t");
@@ -124,6 +126,7 @@ namespace LogCreator
                                 FileLines.RemoveAt(i);
                                 i--;
                             }
+                            FileManager.FileLineCounter++;
                         }
                     }
                     catch (Exception e)
@@ -189,10 +192,18 @@ namespace LogCreator
                 //get MethodName
                 string MethodName = string.Empty;// "NA";
                 //MethodName = Message.Substring(0, Message.IndexOf(" "));
-                match = Regex.Match(Message, @"^[\w]+\(?[\w\d]*\)?:");
+                match = Regex.Match(Message, @"^[\w]+\(?.*?\)?:");
                 if (match.Success)
                 {
                     MethodName = Message.Substring(0, match.Length - 1);
+                }
+                else
+                {
+                    match = Regex.Match(Message, @"^[\w]+\(?.*?\)?[\s]+[\w]+\(?.*?\)?:");
+                    if (match.Success)
+                    {
+                        MethodName = Message.Substring(0, match.Length - 1);
+                    }
                 }
                 //if (string.IsNullOrEmpty(MethodName))
                 //    MethodName = "NA";
@@ -406,10 +417,11 @@ namespace LogCreator
                     //dr[cIndex+1] = cols[cIndex];
                     dr[cIndex] = cols[cIndex];
                 }
-
+                FileManager.FileLineCounter++;
                 tbl.Rows.Add(dr);
                 dr = null;
             }
+            FileManager.FileLineCounter = 0;
             FileLines = null;
             return tbl;
         }
@@ -438,5 +450,10 @@ namespace LogCreator
                 MessageBox.Show(null, "Error occurred while generating Sorted file!!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        public static int FileLineCounter = 0;
+        public static int TotalNoofFiles = 0;
+        public static int NoofFilesCounter = 0;
+        
     }
 }
