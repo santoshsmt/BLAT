@@ -35,3 +35,63 @@ C:\Hackday projects\BLAT\LogCreator\bin\Debug\LogCreator.pdb
 C:\Hackday projects\BLAT\LogCreator\bin\Debug\AdvancedDataGridView.xml
 C:\Hackday projects\BLAT\LogCreator\bin\Debug\fr\AdvancedDataGridView.resources.dll
 C:\Hackday projects\BLAT\LogCreator\bin\Debug\ru\AdvancedDataGridView.resources.dll
+F:\BLAT-master (1)\BLAT-master\LogCreator\obj\Debug\LogCreator.csprojAssemblyReference.cache
+F:\BLAT-master (1)\BLAT-master\LogCreator\obj\Debug\LogCreator.frmMain.resources
+F:\BLAT-master (1)\BLAT-master\LogCreator\obj\Debug\LogCreator.frmTestUI.resources
+F:\BLAT-master (1)\BLAT-master\LogCreator\obj\Debug\LogCreator.Properties.Resources.resources
+F:\BLAT-master (1)\BLAT-master\LogCreator\obj\Debug\LogCreator.csproj.GenerateResource.cache
+F:\BLAT-master (1)\BLAT-master\LogCreator\obj\Debug\LogCreator.csproj.CoreCompileInputs.cache
+F:\BLAT-master (1)\BLAT-master\LogCreator\bin\Debug\LogCreator.exe.config
+F:\BLAT-master (1)\BLAT-master\LogCreator\bin\Debug\LogCreator.exe
+F:\BLAT-master (1)\BLAT-master\LogCreator\bin\Debug\LogCreator.pdb
+F:\BLAT-master (1)\BLAT-master\LogCreator\bin\Debug\AdvancedDataGridView.dll
+F:\BLAT-master (1)\BLAT-master\LogCreator\bin\Debug\AdvancedDataGridView.xml
+F:\BLAT-master (1)\BLAT-master\LogCreator\bin\Debug\fr\AdvancedDataGridView.resources.dll
+F:\BLAT-master (1)\BLAT-master\LogCreator\bin\Debug\ru\AdvancedDataGridView.resources.dll
+F:\BLAT-master (1)\BLAT-master\LogCreator\obj\Debug\LogCreator.csproj.CopyComplete
+F:\BLAT-master (1)\BLAT-master\LogCreator\obj\Debug\LogCreator.exe
+F:\BLAT-master (1)\BLAT-master\LogCreator\obj\Debug\LogCreator.pdb
+C:\Temp\BLAT-master\BLAT-master\LogCreator\bin\Debug\LogCreator.exe.config
+C:\Temp\BLAT-master\BLAT-master\LogCreator\obj\Debug\LogCreator.exe
+C:\Temp\BLAT-master\BLAT-master\LogCreator\obj\Debug\LogCreator.pdb
+C:\Temp\BLAT-master\BLAT-master\LogCreator\bin\Debug\LogCreator.exe
+C:\Temp\BLAT-master\BLAT-master\LogCreator\bin\Debug\LogCreator.pdb
+C:\Temp\BLAT-master\BLAT-master\LogCreator\bin\Debug\AdvancedDataGridView.dll
+C:\Temp\BLAT-master\BLAT-master\LogCreator\bin\Debug\AdvancedDataGridView.xml
+C:\Temp\BLAT-master\BLAT-master\LogCreator\bin\Debug\fr\AdvancedDataGridView.resources.dll
+C:\Temp\BLAT-master\BLAT-master\LogCreator\bin\Debug\ru\AdvancedDataGridView.resources.dll
+C:\Temp\BLAT-master\BLAT-master\LogCreator\obj\Debug\LogCreator.csprojResolveAssemblyReference.cache
+C:\Temp\BLAT-master\BLAT-master\LogCreator\obj\Debug\LogCreator.frmMain.resources
+C:\Temp\BLAT-master\BLAT-master\LogCreator\obj\Debug\LogCreator.frmTestUI.resources
+C:\Temp\BLAT-master\BLAT-master\LogCreator\obj\Debug\LogCreator.Properties.Resources.resources
+C:\Temp\BLAT-master\BLAT-master\LogCreator\obj\Debug\LogCreator.csproj.GenerateResource.Cache
+F:\BLAT-master\LogCreator\obj\Debug\LogCreator.csprojAssemblyReference.cache
+F:\BLAT-master\LogCreator\obj\Debug\LogCreator.frmMain.resources
+F:\BLAT-master\LogCreator\obj\Debug\LogCreator.frmTestUI.resources
+F:\BLAT-master\LogCreator\obj\Debug\LogCreator.Properties.Resources.resources
+F:\BLAT-master\LogCreator\obj\Debug\LogCreator.csproj.GenerateResource.cache
+F:\BLAT-master\LogCreator\obj\Debug\LogCreator.csproj.CoreCompileInputs.cache
+F:\BLAT-master\LogCreator\obj\Debug\LogCreator.exe
+F:\BLAT-master\LogCreator\obj\Debug\LogCreator.pdb
+F:\BLAT-master\LogCreator\bin\Debug\LogCreator.exe.config
+F:\BLAT-master\LogCreator\bin\Debug\LogCreator.exe
+F:\BLAT-master\LogCreator\bin\Debug\LogCreator.pdb
+F:\BLAT-master\LogCreator\bin\Debug\AdvancedDataGridView.dll
+F:\BLAT-master\LogCreator\bin\Debug\AdvancedDataGridView.xml
+F:\BLAT-master\LogCreator\bin\Debug\fr\AdvancedDataGridView.resources.dll
+F:\BLAT-master\LogCreator\bin\Debug\ru\AdvancedDataGridView.resources.dll
+F:\BLAT-master\LogCreator\obj\Debug\LogCreator.csproj.CopyComplete
+C:\Temp\BLAT-master\LogCreator\bin\Debug\LogCreator.exe.config
+C:\Temp\BLAT-master\LogCreator\obj\Debug\LogCreator.exe
+C:\Temp\BLAT-master\LogCreator\obj\Debug\LogCreator.pdb
+C:\Temp\BLAT-master\LogCreator\bin\Debug\LogCreator.exe
+C:\Temp\BLAT-master\LogCreator\bin\Debug\LogCreator.pdb
+C:\Temp\BLAT-master\LogCreator\bin\Debug\AdvancedDataGridView.dll
+C:\Temp\BLAT-master\LogCreator\bin\Debug\AdvancedDataGridView.xml
+C:\Temp\BLAT-master\LogCreator\bin\Debug\fr\AdvancedDataGridView.resources.dll
+C:\Temp\BLAT-master\LogCreator\bin\Debug\ru\AdvancedDataGridView.resources.dll
+C:\Temp\BLAT-master\LogCreator\obj\Debug\LogCreator.csprojResolveAssemblyReference.cache
+C:\Temp\BLAT-master\LogCreator\obj\Debug\LogCreator.frmMain.resources
+C:\Temp\BLAT-master\LogCreator\obj\Debug\LogCreator.frmTestUI.resources
+C:\Temp\BLAT-master\LogCreator\obj\Debug\LogCreator.Properties.Resources.resources
+C:\Temp\BLAT-master\LogCreator\obj\Debug\LogCreator.csproj.GenerateResource.Cache

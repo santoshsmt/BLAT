@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -13,27 +14,44 @@ namespace LogCreator
 {
     public partial class frmMain : Form
     {
-        int _Height = 0;
+        //int _Height = 0;
         List<string> FilePath = new List<string>();
         bool isMultipleFileSelected = false;
         public static List<string> result = new List<string>();
         public static string FileData = string.Empty;
         ToolTip t1 = new ToolTip();
+        DataTable dt = null;
+        DataTable dt2 = null;
+        IEnumerable<DataRow> orderedRows = null;
 
         public frmMain()
         {
             InitializeComponent();
+            backgroundWorker1.WorkerReportsProgress = true;
+            // backgroundWorker1.WorkerSupportsCancellation = true;
+            InitializeBackgroundWorker();
             btnMultipleFile.Visible = true;
             btnMultipleFile.Focus();
             buttonAnalyze.Enabled = false;
             label3.Visible = txtURL.Visible = false;
+            progressBar1.Visible = false;
             this.WindowState = FormWindowState.Maximized;
-          //  _Height = this.Height;
+            //  _Height = this.Height;
             buttonAnalyze.Left = dtpEnd.Right + 10;
             dtpStart.Value = DateTime.Now.Date;
             dtpEnd.Value = DateTime.Now.Date.AddHours(24).AddSeconds(-1);
-          //  this.Height = buttonAnalyze.Top + buttonAnalyze.Height + 50;
+            //  this.Height = buttonAnalyze.Top + buttonAnalyze.Height + 50;
 
+        }
+
+
+        private void InitializeBackgroundWorker()
+        {
+            backgroundWorker1.DoWork +=
+                new DoWorkEventHandler(backgroundWorker1_DoWork);
+            backgroundWorker1.RunWorkerCompleted +=
+                new RunWorkerCompletedEventHandler(
+            backgroundWorker1_RunWorkerCompleted);
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
@@ -79,7 +97,7 @@ namespace LogCreator
                 }
 
 
-               // this.Height = buttonAnalyze.Top + buttonAnalyze.Height + 50;
+                // this.Height = buttonAnalyze.Top + buttonAnalyze.Height + 50;
                 advancedDataGridView1.DataSource = null;
                 FilePath.Clear();
                 txtFilePath.Clear();
@@ -116,8 +134,11 @@ namespace LogCreator
                 MessageBox.Show(ex.Message);
             }
         }
+
         private async void btnSubmit_Click(object sender, EventArgs e)
         {
+            progressBar1.Style = ProgressBarStyle.Marquee;
+            progressBar1.Visible = true;//Show progress bar
             if (string.IsNullOrEmpty(txtFilePath.Text)
                 || FilePath.Count <= 0)
             {
@@ -160,6 +181,7 @@ namespace LogCreator
                     }
                 }
                 MessageBox.Show(msg, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                progressBar1.Visible = false;
                 buttonAnalyze.Enabled = true;
                 btnSubmit.Enabled = false;
                 txtFilePath.ReadOnly = true;
@@ -176,37 +198,98 @@ namespace LogCreator
                 // txtFilePath.Text = string.Empty;
                 isMultipleFileSelected = false;
                 FilePath.Clear();
+                FileManager.FileLines = null;
+                FileManager.FileDataBytes = null;
+                GC.Collect(0);
+                GC.Collect(1);
+                GC.Collect(2);
+
             }
         }
 
         private void buttonAnalyze_Click(object sender, EventArgs e)
         {
-            //Form frm = new frmTestUI();
-            //frm.Show();
-            //   this.Height = _Height;
-            this.Cursor = Cursors.WaitCursor;
-            string directory_name = Path.GetDirectoryName(Application.ExecutablePath) + @"\LogDataFiles";
-            string[] files = Directory.GetFiles(directory_name);
-            string path = string.Empty;
-            foreach (string file in files)
+
+            progressBar1.Style = ProgressBarStyle.Marquee;
+            progressBar1.Visible = true;//Show progress bar
+
+            if (backgroundWorker1.IsBusy != true)
             {
-                path = file;
-                break;
+                // Start the asynchronous operation.
+                backgroundWorker1.RunWorkerAsync();
             }
 
-            DataTable dt = FileManager.ConvertToDataTable(path);
-            DataTable dt2 = dt.Select().Where(p => ((Convert.ToDateTime(p["Time"]) >= Convert.ToDateTime(dtpStart.Value.ToString("hh:mm:ss tt")))
-            && (Convert.ToDateTime(p["Time"]) <= Convert.ToDateTime(dtpEnd.Value.ToString("hh:mm:ss tt"))))).CopyToDataTable();
 
-            IEnumerable<DataRow> orderedRows = dt2.AsEnumerable().OrderBy(r => r.Field<DateTime>("Time"));
-            dt2 = orderedRows.CopyToDataTable();
-            //dt2.DefaultView.Sort = "Time";
-            advancedDataGridView1.DataSource = dt2;
-            advancedDataGridView1.Columns["Time"].DefaultCellStyle.Format = "hh:mm:ss tt";
-            advancedDataGridView1.Columns["Message"].AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            advancedDataGridView1.Columns["Number"].Visible = false;
-            this.Cursor = Cursors.Default;
+           
+
             //dateTimePicker2.Value = DateTime.Now;
+        }
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            try
+            {
+                //Application.DoEvents();
+                //Form frm = new frmTestUI();
+                //frm.Show();
+                //   this.Height = _Height;
+                //this.Cursor = Cursors.WaitCursor;
+                string directory_name = Path.GetDirectoryName(Application.ExecutablePath) + @"\LogDataFiles";
+                string[] files = Directory.GetFiles(directory_name);
+                string path = string.Empty;
+                foreach (string file in files)
+                {
+                    path = file;
+                    break;
+                }
+                files = null;
+
+                dt = FileManager.ConvertToDataTable(path);
+                dt2 = dt.Select().Where(p => ((Convert.ToDateTime(p["Time"]) >= Convert.ToDateTime(dtpStart.Value.ToString("hh:mm:ss tt")))
+                && (Convert.ToDateTime(p["Time"]) <= Convert.ToDateTime(dtpEnd.Value.ToString("hh:mm:ss tt"))))).CopyToDataTable();
+
+                orderedRows = dt2.AsEnumerable().OrderBy(r => r.Field<DateTime>("Time"));
+                dt2 = orderedRows.CopyToDataTable();
+                //dt2.DefaultView.Sort = "Time";
+
+            }
+            catch (Exception ex) { MessageBox.Show("Error occured during operation: ", ex.Message); }
+            //finally
+            //{
+            //    dt.Clear();
+            //    dt.Dispose();
+            //    //dt2.Clear();
+            //    //dt2.Dispose();
+            //    orderedRows = null;
+
+            //    FileManager.tbl = null;
+            //    GC.Collect(0);
+            //    GC.Collect(1);
+            //    GC.Collect(2);
+            //    MessageBox.Show("Total Memory: " + GC.GetTotalMemory(false));
+            //}
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled == true)
+            {
+                
+            }
+            else if (e.Error != null)
+            {
+                
+            }
+            else
+            {
+                advancedDataGridView1.DataSource = dt2;
+
+                advancedDataGridView1.Columns["Time"].DefaultCellStyle.Format = "hh:mm:ss tt";
+                advancedDataGridView1.Columns["Message"].AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+                advancedDataGridView1.Columns["Number"].Visible = false;
+                //this.Cursor = Cursors.Default;
+                progressBar1.Visible = false;//Show progress bar
+                dt2 = null;
+            }
         }
 
         private void advancedDataGridView1_FilterStringChanged(object sender, EventArgs e)
@@ -221,14 +304,14 @@ namespace LogCreator
 
         private void advancedDataGridView1_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
         {
-            
+
             if (e.RowIndex > -1 && e.ColumnIndex > -1)
             {
                 string value = Convert.ToString(advancedDataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value);
-                if(!string.IsNullOrEmpty(value))
+                if (!string.IsNullOrEmpty(value))
                     t1.Tag = value;
             }
-            
+
         }
 
         private void advancedDataGridView1_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
@@ -259,6 +342,23 @@ namespace LogCreator
             {
                 advancedDataGridView1.Rows[e.RowIndex].DefaultCellStyle.BackColor = Color.Red;
                 return;
+            }
+        }
+
+        private void advancedDataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            
+        }
+
+        private void advancedDataGridView1_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex > -1 && e.ColumnIndex > -1)
+            {
+                if (advancedDataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex] != null && advancedDataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString().ToLower().StartsWith("http://"))
+                {
+                    string value = advancedDataGridView1.Rows[e.RowIndex].Cells["URL"].Value.ToString();
+                    Process.Start(value);
+                }
             }
         }
     }

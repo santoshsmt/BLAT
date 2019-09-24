@@ -16,7 +16,8 @@ namespace LogCreator
         public static string OutputFileName = string.Empty;
         static string Source_File_Name = string.Empty;
         public static byte[] FileDataBytes = null;
-        public static List<string> FileLines = null; 
+        public static List<string> FileLines = null;
+        public static DataTable tbl = null;
         public static void ReadFile(string path)
         {
             //string data = string.Empty;
@@ -29,6 +30,7 @@ namespace LogCreator
 
         public static bool CreateLogFile(bool isMultipleFileSelected)
         {
+            Application.DoEvents();
             bool Result = true;
             try
             {
@@ -40,6 +42,7 @@ namespace LogCreator
                 {
                     Directory.CreateDirectory(path);
                 }
+                path = null;
                 byte[] header = Encoding.UTF8.GetBytes("Source_File_Name|Time|Number|ProcessID|Message_type|MethodName|RequestID|IsBlock|Listings|ContentSize|URL|Message\n");
                 // Check if file already exists. If yes, delete it.     
                 if (File.Exists(OutputFileName))
@@ -69,6 +72,7 @@ namespace LogCreator
                         fs.Write(FileDataBytes, 0, FileDataBytes.Length);
                     }
                 }
+                header = null;
             }
             catch (Exception e)
             {
@@ -77,6 +81,7 @@ namespace LogCreator
             finally
             {
                 FileDataBytes = null;
+                
             }
             return Result;
         }
@@ -106,7 +111,7 @@ namespace LogCreator
                                 i--;
                                 continue;
                             }
-                                
+
 
                             var match = Regex.Match(FileLines[i], @"^([\d]{1,2}:[\d]{1,2}:[\d]{1,2}\s[AaPp][Mm])");
                             if (match.Success)
@@ -125,15 +130,22 @@ namespace LogCreator
                     {
                         //
                     }
-                    
+
                 });
                 FileDataBytes = Encoding.UTF8.GetBytes(string.Join(Environment.NewLine, FileLines.ToArray()));
-                FileLines = null;
+
                 // FinalText = string.Join(Environment.NewLine, FileLines.ToArray());
             }
             catch (Exception ex)
             {
                 //error
+            }
+            finally
+            {
+                FileLines = null;
+                GC.Collect(0);
+                GC.Collect(1);
+                GC.Collect(2);
             }
             return true;
         }
@@ -175,33 +187,33 @@ namespace LogCreator
                 Message = Message.Remove(0, match.Index);
 
                 //get MethodName
-                string MethodName = "NA";
+                string MethodName = string.Empty;// "NA";
                 //MethodName = Message.Substring(0, Message.IndexOf(" "));
                 match = Regex.Match(Message, @"^[\w]+\(?[\w\d]*\)?:");
                 if (match.Success)
                 {
                     MethodName = Message.Substring(0, match.Length - 1);
                 }
-                if (string.IsNullOrEmpty(MethodName))
-                    MethodName = "NA";
+                //if (string.IsNullOrEmpty(MethodName))
+                //    MethodName = "NA";
 
                 //get RequestID
                 match = Regex.Match(Message, @"ProcessRequest:[\s]+ID:");
                 if (!match.Success)
                     match = Regex.Match(Message, @"ProcessRequest:[\s]+");
-                string RequestID = "NA";
+                string RequestID = string.Empty;// "NA";
                 if (match.Success)
                 {
                     RequestID = Message.Remove(0, match.Index + match.Length);
                     match = Regex.Match(RequestID, @"[\d]+");
                     RequestID = RequestID.Substring(match.Index, match.Length);
                 }
-                if (string.IsNullOrEmpty(RequestID))
-                    RequestID = "NA";
+                //if (string.IsNullOrEmpty(RequestID))
+                //    RequestID = "NA";
                 
 
                 //get IsBlock
-                string IsBlock = "NA";
+                string IsBlock = string.Empty;// "NA";
                 if (MethodName.ToLower().Contains("DetectBlock".ToLower()))
                 {
                     if (Message.ToLower().Contains("is blocked.".ToLower()))
@@ -225,11 +237,11 @@ namespace LogCreator
                         IsBlock = IsBlock.Substring(match.Index, match.Length);
                     }
                 }
-                if (string.IsNullOrEmpty(IsBlock))
-                    IsBlock = "NA";
+                //if (string.IsNullOrEmpty(IsBlock))
+                //    IsBlock = "NA";
 
                 //get Listing
-                string Listing = "NA";
+                string Listing = string.Empty;// "NA";
                 match = Regex.Match(Message, @"([\d]+[\s]listings)");
                 if (match.Success)
                 {
@@ -237,11 +249,11 @@ namespace LogCreator
                     match = Regex.Match(Listing, @"^[\d]+");
                     Listing = match.Value;
                 }
-                if (string.IsNullOrEmpty(Listing))
-                    Listing = "NA";
+                //if (string.IsNullOrEmpty(Listing))
+                //    Listing = "NA";
 
                 //get ContentSize
-                string ContentSize = "NA";
+                string ContentSize = string.Empty;// "NA";
                 if (MethodName.ToLower().Contains("ProcessRequest".ToLower()))
                 {
                     match = Regex.Match(Message, @"(len [\d]+)");
@@ -259,16 +271,16 @@ namespace LogCreator
                         ContentSize = "0";
                     }
                 }
-                if (string.IsNullOrEmpty(ContentSize))
-                    ContentSize = "NA";
+                //if (string.IsNullOrEmpty(ContentSize))
+                //    ContentSize = "NA";
 
                 //get URL
-                match = Regex.Match(Message, @"url[\s]?:");
-                string URL = "NA";
+                match = Regex.Match(Message, @"url[\s]?:", RegexOptions.IgnoreCase);
+                string URL = string.Empty;//"NA";
                 if (match.Success)
                 {
                     URL = Message.Remove(0, match.Index + match.Length);
-                    match = Regex.Match(URL, @"[a-zA-z]");
+                    match = Regex.Match(URL, @"[a-zA-z]", RegexOptions.IgnoreCase);
                     URL = URL.Remove(0, match.Index);
                 }
                 else
@@ -277,28 +289,50 @@ namespace LogCreator
                     if (match.Success)
                     {
                         URL = Message.Remove(0, match.Index + match.Length);
-                        match = Regex.Match(URL, @"[a-zA-z]");
+                        match = Regex.Match(URL, @"[a-zA-z]", RegexOptions.IgnoreCase);
                         URL = URL.Remove(0, match.Index);
                         //match = Regex.Match(URL, @"[\s]+");
                         //if (match.Success)
                         //{
-                           // URL = URL.Substring(0, match.Index).Trim();
-                            if (URL.EndsWith(","))
-                            {
-                                URL = URL.Remove(URL.Length - 1);
-                            }
-                            //URL = GetUrlDecodeString(URL);
-                            //URL = GetUrlDecodeString(URL);
-                       // }
+                        // URL = URL.Substring(0, match.Index).Trim();
+
+                        //URL = GetUrlDecodeString(URL);
+                        //URL = GetUrlDecodeString(URL);
+                        // }
                         //match = Regex.Match(URL, @"^http(s)?://([\w-]+.)+[\w-]+(/[\w- ./?%&=])?$");
                         //if (!match.Success)
                         //{
                         //    URL = "NA";
                         //}
                     }
+                    else
+                    {
+                        match = Regex.Match(Message, @"for[[\s]link[\s]+", RegexOptions.IgnoreCase);
+                        if (match.Success)
+                        {
+                            URL = Message.Remove(0, match.Index + match.Length);
+                            match = Regex.Match(URL, @"[\s]at", RegexOptions.IgnoreCase);
+                            URL = URL.Substring(0, match.Index);
+                        }
+                    }
                 }
-                if (string.IsNullOrEmpty(URL))
-                    URL = "NA";
+
+                if (!string.IsNullOrWhiteSpace(URL))
+                {
+                    match = Regex.Match(URL, @"[\s]", RegexOptions.IgnoreCase);
+                    if (match.Success)
+                    {
+                        URL = URL.Substring(0, match.Index);
+                    }
+                    if (URL.EndsWith(","))
+                    {
+                        URL = URL.Remove(URL.Length - 1);
+                    }
+                }
+
+
+                if (!string.IsNullOrEmpty(URL) && !URL.StartsWith("http:", StringComparison.CurrentCultureIgnoreCase))
+                    URL = string.Empty;
 
                 //Source_File_Name|Time|Number|ProcessID|Message_type|MethodName|RequestID|IsBlock|URL|Message
                 Result = Source_File_Name + "|" + time + "|" + Number + "|" + ProcessID + "|" + Message_type + "|" + MethodName + "|" + RequestID + "|" + IsBlock + "|" + Listing + "|" + ContentSize + "|" + URL + "|" + Message;
@@ -339,7 +373,8 @@ namespace LogCreator
         };
         public static DataTable ConvertToDataTable(string filePath)
         {
-            DataTable tbl = new DataTable();
+            Application.DoEvents();
+            tbl = new DataTable();
             for (int i = 0; i < ColumnName.Count; i++)
             {
                 if (ColumnName[i].Equals("Time"))
@@ -373,8 +408,9 @@ namespace LogCreator
                 }
 
                 tbl.Rows.Add(dr);
+                dr = null;
             }
-
+            FileLines = null;
             return tbl;
         }
 
