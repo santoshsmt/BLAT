@@ -20,6 +20,7 @@ namespace LogCreator
         bool isMultipleFileSelected = false;
         public static List<string> result = new List<string>();
         public static string FileData = string.Empty;
+        public static string FileName = string.Empty;
         ToolTip t1 = new ToolTip();
         DataTable dt = null;
         DataTable dt2 = null;
@@ -27,7 +28,7 @@ namespace LogCreator
 
         public frmMain()
         {
-            InitializeComponent();
+            InitializeComponent();           
             backgroundWorker1.WorkerReportsProgress = true;
             InitializeBackgroundWorker();
             btnMultipleFile.Visible = true;
@@ -37,7 +38,7 @@ namespace LogCreator
             buttonAnalyze.Left = dtpEnd.Right + 10;
             dtpStart.Value = DateTime.Now.Date;
             dtpEnd.Value = DateTime.Now.Date.AddHours(24).AddSeconds(-1);
-            
+
             ThreadSafe(() => lblPer.Text = "0 %");
             ThreadSafe(() => toolStripProgressBar1.Value = 0);
 
@@ -128,6 +129,19 @@ namespace LogCreator
                     FileManager.TotalNoofFiles = openFileDialog.FileNames.Count();
                     foreach (string file in openFileDialog.FileNames)
                     {
+                        FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read);
+                        int SizeofFile = (int)Math.Ceiling((double)fs.Length);
+                        if (SizeofFile >= 262144000)
+                        {
+                            if (MessageBox.Show("Selected file is too big. Plesae devied it into Chunks", "Chunks Required!!", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                            {
+                                FileName = file;
+                                var splitForm = new frmSplitFile();
+                                splitForm.Show();
+                            }
+                            else
+                                return;
+                        }
                         FilePath.Add(file);
                         txtFilePath.Text += Path.GetFileName(file) + Environment.NewLine;
                     }
@@ -143,7 +157,7 @@ namespace LogCreator
 
         private async void btnSubmit_Click(object sender, EventArgs e)
         {
-            
+
             if (string.IsNullOrEmpty(txtFilePath.Text)
                 || FilePath.Count <= 0)
             {
@@ -190,7 +204,7 @@ namespace LogCreator
                     }
                 }
                 MessageBox.Show(msg, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                
+
             }
             catch (Exception ex)
             {
@@ -274,11 +288,11 @@ namespace LogCreator
         {
             if (e.Cancelled == true)
             {
-                
+
             }
             else if (e.Error != null)
             {
-                
+
             }
             else
             {
@@ -356,7 +370,7 @@ namespace LogCreator
             {
                 //
             }
-            
+
         }
 
 
@@ -415,7 +429,7 @@ namespace LogCreator
 
         private void advancedDataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            
+
         }
 
         private void advancedDataGridView1_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -428,6 +442,12 @@ namespace LogCreator
                     Process.Start(value);
                 }
             }
+        }
+
+        private void btnFileSplitter_Click(object sender, EventArgs e)
+        {
+            var splitForm = new frmSplitFile();
+            splitForm.Show();
         }
     }
 }

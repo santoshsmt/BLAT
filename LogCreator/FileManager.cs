@@ -227,7 +227,7 @@ namespace LogCreator
                 string IsBlock = string.Empty;// "NA";
                 if (MethodName.ToLower().Contains("DetectBlock".ToLower()))
                 {
-                    if (Message.ToLower().Contains("is blocked.".ToLower()))
+                    if (Message.ToLower().Contains("is blocked".ToLower()))
                     {
                         IsBlock = "true";
                     }

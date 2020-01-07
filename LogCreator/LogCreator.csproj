@@ -36,6 +36,7 @@
   <ItemGroup>
     <Reference Include="AdvancedDataGridView, Version=0.1.0.10, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ADGV.0.1.0.10\lib\net40\AdvancedDataGridView.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -58,6 +59,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmSplitFile.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmSplitFile.Designer.cs">
+      <DependentUpon>frmSplitFile.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmTestUI.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -68,6 +75,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmSplitFile.resx">
+      <DependentUpon>frmSplitFile.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmTestUI.resx">
       <DependentUpon>frmTestUI.cs</DependentUpon>

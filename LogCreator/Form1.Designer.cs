@@ -43,6 +43,7 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.lblPer = new System.Windows.Forms.ToolStripLabel();
+            this.btnFileSplitter = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.advancedDataGridView1)).BeginInit();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -178,10 +179,10 @@
             this.toolStripProgressBar1,
             this.lblPer});
             this.toolStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
-            this.toolStrip1.Location = new System.Drawing.Point(215, 643);
+            this.toolStrip1.Location = new System.Drawing.Point(215, 642);
             this.toolStrip1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 5);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(587, 24);
+            this.toolStrip1.Size = new System.Drawing.Size(556, 25);
             this.toolStrip1.TabIndex = 14;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -196,8 +197,19 @@
             this.lblPer.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblPer.ForeColor = System.Drawing.Color.ForestGreen;
             this.lblPer.Name = "lblPer";
-            this.lblPer.Size = new System.Drawing.Size(55, 22);
+            this.lblPer.Size = new System.Drawing.Size(55, 21);
             this.lblPer.Text = "100 %";
+            // 
+            // btnFileSplitter
+            // 
+            this.btnFileSplitter.Location = new System.Drawing.Point(481, 14);
+            this.btnFileSplitter.Name = "btnFileSplitter";
+            this.btnFileSplitter.Size = new System.Drawing.Size(75, 23);
+            this.btnFileSplitter.TabIndex = 15;
+            this.btnFileSplitter.Text = "File Splitter";
+            this.btnFileSplitter.UseVisualStyleBackColor = true;
+            this.btnFileSplitter.Visible = false;
+            this.btnFileSplitter.Click += new System.EventHandler(this.btnFileSplitter_Click);
             // 
             // frmMain
             // 
@@ -205,6 +217,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1038, 670);
+            this.Controls.Add(this.btnFileSplitter);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtURL);
@@ -246,6 +259,7 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
         private System.Windows.Forms.ToolStripLabel lblPer;
+        private System.Windows.Forms.Button btnFileSplitter;
     }
 }
 
