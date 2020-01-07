@@ -29,6 +29,17 @@ namespace LogCreator
             //return data;
         }
 
+        public static long GetFileSize(string path)
+        {
+            if (File.Exists(path))
+            {
+                FileInfo f = new FileInfo(path);
+                return f.Length / 1048576;
+
+            }
+            return 0;
+        }
+
         public static bool CreateLogFile(bool isMultipleFileSelected)
         {
             Application.DoEvents();

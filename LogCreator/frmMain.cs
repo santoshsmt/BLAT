@@ -130,13 +130,14 @@ namespace LogCreator
                     foreach (string file in openFileDialog.FileNames)
                     {
                         FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read);
-                        int SizeofFile = (int)Math.Ceiling((double)fs.Length);
-                        if (SizeofFile >= 262144000)
+                       // int SizeofFile = (int)Math.Ceiling((double)fs.Length);
+                        if (FileManager.GetFileSize(file)>300)
                         {
-                            if (MessageBox.Show("Selected file is too big. Plesae devied it into Chunks", "Chunks Required!!", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                            if (MessageBox.Show("Selected file is more than 300 mb. Plesae split it into Chunks", "Chunks Required!!", MessageBoxButtons.OKCancel) == DialogResult.OK)
                             {
                                 FileName = file;
                                 var splitForm = new frmSplitFile();
+                                this.Hide();
                                 splitForm.Show();
                             }
                             else

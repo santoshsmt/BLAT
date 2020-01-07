@@ -132,7 +132,11 @@ namespace LogCreator
                     Cursor.Current = Cursors.Default;
                     btnSplitFile.Visible = true;
                     MessageBox.Show("Files have been splitted and saved at location C:\\SplitMerge\\", "Files Splitted", MessageBoxButtons.OK);
-                    openInExplorer("C:\\SplitMerge\\");
+                    //Application.Exit();
+                    var mainForm = new frmMain();
+                    this.Hide();
+                    mainForm.Show();
+                    //openInExplorer("C:\\SplitMerge\\");
                 }
                 else
                 {
